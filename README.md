@@ -1,6 +1,8 @@
-# Algorithm-DataStructures
+Based on the [jakobkogler/Algorithm-DataStructures](https://github.com/jakobkogler/Algorithm-DataStructures)
 
-Implementations of common algorithms and data structures used for competitive programming.
+# contest-notebook 
+
+This repo contains algorithms and data structures that might be useful during programming contest.
 
 ## Vim plugin
 
@@ -17,7 +19,7 @@ With vim-plug:
 
 ```vim
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-Plug 'jakobkogler/Algorithm-DataStructures'
+Plug 'FranciscoThiesen/contest-notebook'
 ```
 
 ### Command/Usage
