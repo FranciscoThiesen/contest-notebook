@@ -1,33 +1,39 @@
 #include <vector>
+using namespace std;
+// Based on: https://github.com/the-tourist/algo/blob/master/data/sparsetable.cpp
+/* 
+Usage:
+   auto func = [&] (int i, int j) { return min(i, j); }
+   SparseTable<int, decltype(fun)> st(arr, func)
+or:
+   SparseTable<int> st(a, [&] (int i, int j) { return min(i, j); });
+*/
+// Sparse-Table for a static array
+// Complexity: O(n log n) for initialization and O(1) for get
+// Assumption: func must be associative
+template<typename T, class F = function<T(const T&, const T&)> >
+struct SparseTable {
+    int n;
+    vector< vector<T> > mat;
+    F func;
 
-class SparseTable
-{
-public:
-    SparseTable(std::vector<int> v)
-    {
-        log_table.assign(v.size() + 1, 0);
-        for (auto i = 2UL; i < log_table.size(); i++)
-            log_table[i] = log_table[i / 2] + 1;
-
-        sparse_table.assign(log_table.back() + 1, std::vector<int>(v.size()));
-        sparse_table[0] = v;
-        for (auto row = 1UL; row < sparse_table.size(); row++) {
-            for (auto i = 0UL; i + (1 << row) <= v.size(); i++) {
-                sparse_table[row][i] =
-                    std::min(sparse_table[row - 1][i],
-                             sparse_table[row - 1][i + (1 << (row - 1))]);
+    SparseTable(const vector<T>& a, const F& f) : func(f) {
+        n = static_cast<int>(a.size());
+        int max_log = 32 - __builtin_clz(n);
+        mat.resize(max_log);
+        mat[0] = a;
+        for(int j = 1; j < max_log; ++j) {
+            mat[j].resize(n - (1 << j) + 1);
+            for(int i = 0; i <= n - (1 << j); ++i) {
+                mat[j][i] = func(mat[j - 1][i], mat[j - 1][i + (1 << (j - 1))]);
             }
         }
     }
 
-    int minimum(int l, int r)
-    {
-        int log = log_table[r - l];
-        return std::min(sparse_table[log][l],
-                        sparse_table[log][r - (1 << log)]);
+    T get(int from, int to) const {
+        assert(0 <= from && from <= to && to <= n - 1);
+        int lg = 32 - __builtin_clz(to - from + 1) - 1;
+        return func(mat[lg][from], mat[lg][to - (1 << lg) + 1]);
     }
-
-private:
-    std::vector<int> log_table;
-    std::vector<std::vector<int>> sparse_table;
 };
+
